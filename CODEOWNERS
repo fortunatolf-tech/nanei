@@ -1,25 +1,8 @@
-# Propriedade de módulos por equipe (§8.1 da documentação)
-# Os times do GitHub devem ser criados na organização fortunatolf-tech.
+# Fase solo: @fortunatolf-tech é owner de tudo.
+# Quando a equipe crescer, restaurar o mapa por time da §8.1:
+#   Core (@.../core):        /packages/auth /packages/families /packages/billing /packages/ui /packages/contracts /apps /.github
+#   Tracking (@.../tracking): /packages/tracking /packages/reminders
+#   Insights (@.../insights): /packages/sleep /packages/analytics
+#   Conteúdo (@.../conteudo): /packages/development /packages/drugs /packages/content /packages/sounds
 
-# Core — ACC, FAM, BIL, infra, design system
-/packages/auth/       @fortunatolf-tech/core
-/packages/families/   @fortunatolf-tech/core
-/packages/billing/    @fortunatolf-tech/core
-/packages/ui/         @fortunatolf-tech/core
-/packages/contracts/  @fortunatolf-tech/core
-/apps/                @fortunatolf-tech/core
-/.github/             @fortunatolf-tech/core
-
-# Tracking — TRK, NTF
-/packages/tracking/   @fortunatolf-tech/tracking
-/packages/reminders/  @fortunatolf-tech/tracking
-
-# Insights — SLP, ANA
-/packages/sleep/      @fortunatolf-tech/insights
-/packages/analytics/  @fortunatolf-tech/insights
-
-# Conteúdo — DEV, MED, EDU, SND
-/packages/development/ @fortunatolf-tech/conteudo
-/packages/drugs/       @fortunatolf-tech/conteudo
-/packages/content/     @fortunatolf-tech/conteudo
-/packages/sounds/      @fortunatolf-tech/conteudo
+* @fortunatolf-tech

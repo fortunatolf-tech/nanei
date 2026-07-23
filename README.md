@@ -63,6 +63,14 @@ pnpm dev            # modo de desenvolvimento
 
 Fluxo de branches: `main` (implantável) ← `develop` (integração) ← `feature/<módulo>-<nº-RF>-<slug>`. Detalhes na [Parte 8](docs/08-gestao-colaborativa-e-git.md).
 
+### Produção
+
+O PWA está publicado em **https://www.nanei.com.br** — o nginx do servidor serve `apps/web/dist` diretamente (vhost em `/www/server/panel/vhost/nginx/www.nanei.com.br.conf`, TLS Let's Encrypt com renovação automática via acme.sh). Para publicar uma nova versão:
+
+```bash
+git pull && pnpm install && pnpm --filter @nanei/web build
+```
+
 ## Contribuindo
 
 O fluxo de trabalho (branches, Conventional Commits, regras de merge e branch protection) está descrito em [Gestão Colaborativa e Git](docs/08-gestao-colaborativa-e-git.md).
