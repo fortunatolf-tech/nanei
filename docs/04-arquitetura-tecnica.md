@@ -25,6 +25,7 @@
 | Gráficos | Recharts | Percentis e tendências |
 | Auth | JWT RS256 + refresh rotativo; TOTP (otplib); WebAuthn | RNF-06, RF-ACC |
 | IA (voz/consulta) | Web Speech API (captura) + LLM via API com DPA, saída estruturada validada por schema | RF-AIA; RNF-09 |
+| Billing | Gateway de pagamento com tokenização (fornecedor a definir no Gate 0); dupla origem de tokens de IA (plataforma × BYOK) | RF-BIL; Parte 12 |
 
 ## 4.3 Modelo de dados (entidades principais)
 
@@ -43,6 +44,11 @@ Reminder(id, user_id, baby_id, tipo, regra[intervalo|horario], config JSONB, ati
 Drug(id, nome_generico, nomes_comerciais[], classe, monografia JSONB, fontes[])
 Article(id, tema, titulo, corpo, nivel[gratuito|premium])
 AuditLog(id, user_id, acao, entidade, entidade_id, ip, user_agent, timestamp)  -- imutável
+Subscription(id, user_id, plano[gratuito|premium], ciclo[mensal|anual], status,
+      gateway_ref, inicio, fim?)  -- sem dados de cartão (tokenização no gateway)
+TokenUsage(id, user_id, periodo[AAAA-MM], tokens_consumidos, quota_plano)
+ByokKey(id, user_id, provedor, chave_criptografada[pgcrypto/KMS], ultimos4,
+      validada_em, criado_em)  -- nunca logada nem enviada ao frontend
 ```
 
 `Event.payload` JSONB permite campos específicos por tipo sem migrações por equipe (ex.: mamada → `{lado, duracao_e, duracao_d}`; fralda → `{tipo, cor, bristol}`).

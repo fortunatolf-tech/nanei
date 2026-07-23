@@ -4,7 +4,7 @@
 
 | Equipe | Módulos | Diretórios (CODEOWNERS) |
 |---|---|---|
-| **Core** | ACC, FAM, infra, design system | `/packages/auth`, `/packages/families`, `/packages/ui` |
+| **Core** | ACC, FAM, BIL, infra, design system | `/packages/auth`, `/packages/families`, `/packages/billing`, `/packages/ui` |
 | **Tracking** | TRK, NTF | `/packages/tracking`, `/packages/reminders` |
 | **Insights** | SLP, ANA | `/packages/sleep`, `/packages/analytics` |
 | **Conteúdo** | DEV, MED, EDU, SND | `/packages/development`, `/packages/drugs`, `/packages/content`, `/packages/sounds` |

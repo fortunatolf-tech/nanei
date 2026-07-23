@@ -16,6 +16,7 @@
 | Rate limit | Redis | 5 tentativas de login/15 min por IP+conta; alerta em anomalia |
 | Logs | Centralizados | Acesso, auth, operações LGPD; alertas: força bruta, export em massa, acesso fora de padrão; retenção 12 meses |
 | Uploads | Fotos | Validação de MIME real, strip EXIF/GPS, antivírus, URLs assinadas de curta duração |
+| Chaves BYOK | `pgcrypto` + KMS | Criptografia de coluna (mesmo padrão dos dados de saúde); exibição mascarada (últimos 4); nunca logada nem enviada ao frontend; cadastro/remoção no AuditLog (RF-BIL-04) |
 
 ## 7.2 Mapa LGPD
 
@@ -43,7 +44,8 @@
 | `AuditLog` | **12 meses** rolling | Anonimizado (user_id → hash irreversível) na exclusão de conta |
 | Logs de acesso/segurança | 12 meses (RNF-08); 6 meses mínimos de registros de acesso (Marco Civil, art. 15) | Anonimização na exclusão |
 | Backups | Ciclo máximo de 30 dias | Dados excluídos saem naturalmente ao fim do ciclo |
-| Dados de pagamento (se premium) | Não armazenados (tokenização no gateway de pagamento) | N/A — apenas referência de transação por 5 anos (fiscal) |
+| Dados de pagamento (premium) | Não armazenados (tokenização no gateway de pagamento) | N/A — apenas referência de transação por 5 anos (fiscal) |
+| Chave BYOK (`ByokKey`) | Enquanto a usuária mantiver o BYOK ativo | Remoção imediata a pedido (RF-BIL-04); purga total em 30 dias na exclusão de conta |
 
 ## 7.3 Matriz de permissões (RF-FAM-03)
 

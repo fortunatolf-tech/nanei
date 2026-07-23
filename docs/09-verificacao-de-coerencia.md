@@ -28,8 +28,9 @@
 | R3 | Conteúdo dos saltos (RF-DEV-03) é propriedade intelectual de terceiros (Wonder Weeks) | Produzir conteúdo original com base em literatura científica; **proibido copiar**. Redação inicia em S1 |
 | R4 | Curvas OMS/CDC | Usar tabelas LMS oficiais publicadas (dado aberto) — sem bloqueio, registrar fonte |
 | R5 | Fotos de menores | Consentimento específico (já em F1); armazenamento em região Brasil; retenção definida em [§7.2.1](07-seguranca-e-lgpd.md#721-tabela-de-retenção-de-dados-por-categoria) |
-| R6 | **Modelo de monetização indefinido** | Decidir antes do Gate 0: gratuito total vs. freemium. Afeta feature flags, billing, arquitetura e LGPD (dados de pagamento). **Bloqueia Gate 0** |
+| R6 | **Modelo de monetização indefinido** | ✅ **Resolvido (v1.3, 23/07/2026):** freemium com dupla origem de tokens de IA — plataforma (quota por plano) ou BYOK. Módulo BIL criado; detalhamento na [Parte 12](12-modelo-de-monetizacao.md). Pendências operacionais (preço, quotas, gateway) listadas na §12.5 |
 | R7 | **Fórum sem moderação** (RF-EDU-03) | Movido para pós-1.0 e condicionado a plano de moderação aprovado (Marco Civil) |
 | R8 | Push no iOS (RNF-16) | ✅ Mitigado: instalação guiada do PWA em F1 + fallback por e-mail para lembretes críticos |
 | R9 | **IA com dados de menores** (RF-AIA): envio de dados a provedor de LLM | Mitigação definida em RF-AIA-04 (DPA sem treinamento, pseudonimização, opt-in, AuditLog). DPO valida o provedor no Gate 0 |
 | R10 | **Triagem EPDS** (RF-MOM-02): risco clínico e emocional se mal conduzida | Pós-1.0, bloqueado por RF-MOM-04 (aditivo RIPD + revisão de responsável clínico). Nunca apresentar como diagnóstico |
+| R11 | **Chave BYOK** (RF-BIL-03/04): armazenar credencial de terceiros da usuária; com BYOK os dados vão ao provedor sob o contrato dela (fora do DPA do Nanei) | Criptografia de coluna + KMS (§7.1), exibição mascarada, AuditLog; aviso específico no fluxo de ativação e cláusula nos termos de uso (§12.5). Pseudonimização (RF-AIA-04) aplicada nas duas origens. Jurídico e DPO validam no Gate 0 |

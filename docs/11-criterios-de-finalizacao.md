@@ -7,7 +7,9 @@ Assinaturas obrigatórias de: product owner, tech leads das 4 equipes, DPO/jurí
 Checklist:
 
 - [ ] Matriz de rastreabilidade ([§9.1](09-verificacao-de-coerencia.md#91-matriz-de-rastreabilidade-amostra-do-método--completa-em-planilha-na-aprovação)) completa e sem lacunas
-- [ ] Riscos R1–R10 com decisão registrada (**R6 — monetização — pendente e bloqueante**)
+- [ ] Riscos R1–R11 com decisão registrada (R6 ✅ resolvido — freemium com dupla origem de tokens, [Parte 12](12-modelo-de-monetizacao.md); R11 — BYOK — validação jurídico/DPO pendente)
+- [ ] Preço do Nanei+ e quotas de tokens definidos; gateway de pagamento selecionado (§12.5)
+- [ ] Cláusula de BYOK nos termos de uso revisada pelo jurídico (R11)
 - [ ] Provedor de LLM validado pelo DPO: DPA assinado, sem treinamento com dados de usuários (R9)
 - [ ] Termos de uso redigidos e revisados pelo jurídico (RF-ACC-09)
 - [ ] Marca "Nanei": busca e depósito no INPI (classes 9 e 42) + reserva dos handles @nanei nas redes e lojas

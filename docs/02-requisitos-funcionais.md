@@ -2,7 +2,7 @@
 
 Notação: `RF-<módulo>-<nº>`. Prioridade: **E**ssencial / **I**mportante / **D**esejável.
 
-**Release 1.0** = TRK + SLP + DEV + MED (gateway) + AIA + FAM + ANA + NTF + ACC. **Pós-1.0** = MOM, EDU e SND.
+**Release 1.0** = TRK + SLP + DEV + MED (gateway) + AIA + FAM + ANA + NTF + ACC + BIL. **Pós-1.0** = MOM, EDU e SND.
 
 ## Módulo TRK — Rastreamento diário
 
@@ -152,3 +152,18 @@ Notação: `RF-<módulo>-<nº>`. Prioridade: **E**ssencial / **I**mportante / **
 | RF-ACC-07 | Registro auditável de todas as operações com dados pessoais (quem, o quê, quando) | E |
 | RF-ACC-08 | Política de privacidade acessível em linguagem clara, versionada, com re-consentimento em mudanças | E |
 | RF-ACC-09 | **Termos de uso** separados da política de privacidade, com aceite no cadastro e cláusula explícita: "o serviço tem caráter informativo e não substitui orientação médica" (protege MED, DEV e EDU) | E |
+
+## Módulo BIL — Monetização e planos
+
+**Modelo:** freemium com dupla origem de tokens de IA — a usuária escolhe entre tokens da plataforma (quota por plano) ou a própria chave (BYOK). Detalhamento completo na [Parte 12](12-modelo-de-monetizacao.md).
+
+| ID | Requisito | Prio |
+|---|---|---|
+| RF-BIL-01 | Plano gratuito com todos os módulos essenciais da 1.0, sem paywall em registros | E |
+| RF-BIL-02 | Assinatura premium mensal/anual via gateway de pagamento com tokenização (sem armazenar dados de cartão) | E |
+| RF-BIL-03 | Seleção da origem de tokens de IA por usuário: plataforma ou BYOK, alternável a qualquer momento | E |
+| RF-BIL-04 | Gestão de chave BYOK: cadastro com validação, criptografia de coluna, exibição mascarada, remoção imediata; operações registradas no AuditLog | E |
+| RF-BIL-05 | Medição de consumo de tokens da plataforma com quota mensal por plano, medidor visível e aviso proativo a 80% do limite | E |
+| RF-BIL-06 | Feature flags por plano (conteúdo premium, quotas) resolvidas no backend — nunca apenas ocultadas no frontend | E |
+| RF-BIL-07 | Upgrade/downgrade/cancelamento self-service no portal, com efeito no ciclo seguinte e sem retenção forçada | E |
+| RF-BIL-08 | Recibos e histórico de pagamentos acessíveis no portal | I |

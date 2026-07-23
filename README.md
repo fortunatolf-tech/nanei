@@ -14,13 +14,15 @@ Plataforma web mobile-first que centraliza, em um único produto, o rastreamento
 
 | | |
 |---|---|
-| **Versão** | 1.2 |
+| **Versão** | 1.3 |
 | **Data** | 23/07/2026 |
 | **Etapa** | 1ª Etapa — Estruturação e Validação |
 | **Status** | Aguardando aprovação das partes envolvidas (Gate 0) |
 
-**Release 1.0** = TRK + SLP + DEV + MED (gateway) + AIA + FAM + ANA + NTF + ACC
+**Release 1.0** = TRK + SLP + DEV + MED (gateway) + AIA + FAM + ANA + NTF + ACC + BIL
 **Pós-1.0** = MOM, EDU e SND
+
+**Modelo de negócio (v1.3):** freemium com dupla origem de tokens de IA — a usuária escolhe entre a própria chave (BYOK) ou os tokens da plataforma (quota por plano). Ver [Parte 12](docs/12-modelo-de-monetizacao.md).
 
 ## Documentação
 
@@ -37,6 +39,7 @@ Plataforma web mobile-first que centraliza, em um único produto, o rastreamento
 | 9 | [Verificação de Coerência](docs/09-verificacao-de-coerencia.md) | Rastreabilidade, verificações, riscos R1–R10 |
 | 10 | [Sprints](docs/10-sprints.md) | Planejamento S0–S7 + pós-1.0 por equipe |
 | 11 | [Critérios de Finalização (Gates)](docs/11-criterios-de-finalizacao.md) | Gate 0, gate por PR, gate de release, Definition of Done |
+| 12 | [Modelo de Monetização](docs/12-modelo-de-monetizacao.md) | Freemium, dupla origem de tokens de IA (plataforma × BYOK), módulo BIL |
 
 O documento original consolidado está preservado em [`docs/originais/artefatos-app-maes-bebes-v1.2.md`](docs/originais/artefatos-app-maes-bebes-v1.2.md).
 
@@ -46,4 +49,4 @@ O fluxo de trabalho (branches, Conventional Commits, regras de merge e branch pr
 
 ## Próximo passo
 
-Revisão deste documento pelas partes envolvidas e decisão dos riscos pendentes (em especial **R6 — monetização**, bloqueante) para liberação do **Gate 0**.
+Revisão deste documento pelas partes envolvidas para liberação do **Gate 0**. O risco R6 (monetização) foi resolvido na v1.3; restam as pendências operacionais da [§12.5](docs/12-modelo-de-monetizacao.md#125-pendências-para-o-gate-0-derivadas-desta-decisão) (preço, quotas, gateway de pagamento, cláusula BYOK nos termos) e a validação do risco R11 (BYOK) pelo jurídico/DPO.
