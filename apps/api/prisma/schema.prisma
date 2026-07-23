@@ -1,0 +1,143 @@
+// Esquema do banco (docs/04-arquitetura-tecnica.md §4.3)
+// Subconjunto do S1: User, Family, FamilyMember, Baby, Consent, Event,
+// RefreshToken e AuditLog. Milestone/Leap/Reminder/Drug entram nos S2–S4.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Papel {
+  admin
+  editor
+  registrador
+  visualizador
+}
+
+enum TipoEvento {
+  mamada
+  mamadeira
+  solido
+  bombeamento
+  fralda
+  sono
+  banho
+  medicamento
+  vacina
+  temperatura
+  crescimento
+  humor
+  atividade
+  nota
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  senhaHash String
+  criadoEm  DateTime @default(now())
+
+  membros       FamilyMember[]
+  consents      Consent[]
+  refreshTokens RefreshToken[]
+  eventos       Event[]        @relation("criadoPor")
+  auditLogs     AuditLog[]
+}
+
+model Family {
+  id      String         @id @default(uuid())
+  nome    String
+  membros FamilyMember[]
+  bebes   Baby[]
+}
+
+model FamilyMember {
+  userId   String
+  familyId String
+  papel    Papel
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, familyId])
+}
+
+model Baby {
+  id                String    @id @default(uuid())
+  familyId          String
+  nome              String
+  nascimento        DateTime
+  dataPrevistaParto DateTime?
+  sexo              String?
+
+  family  Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  eventos Event[]
+}
+
+model Consent {
+  id             String    @id @default(uuid())
+  userId         String
+  categoria      String
+  finalidade     String
+  versaoPolitica String
+  aceitoEm       DateTime  @default(now())
+  revogadoEm     DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, categoria])
+}
+
+model Event {
+  id             String     @id @default(uuid())
+  babyId         String
+  tipo           TipoEvento
+  inicio         DateTime
+  fim            DateTime?
+  payload        Json
+  local          String?
+  criadoPorId    String
+  criadoEm       DateTime   @default(now())
+  editadoEm      DateTime?
+  idempotencyKey String?    @unique
+
+  baby      Baby @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  criadoPor User @relation("criadoPor", fields: [criadoPorId], references: [id])
+
+  @@index([babyId, inicio])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  familia   String
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  revogado  Boolean   @default(false)
+  criadoEm  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, familia])
+}
+
+/// Registro auditável de operações com dados pessoais (RF-ACC-07).
+/// Append-only por convenção de aplicação: nenhum update/delete no código.
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  acao       String
+  entidade   String
+  entidadeId String?
+  ip         String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, timestamp])
+}
