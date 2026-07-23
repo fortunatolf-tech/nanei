@@ -77,7 +77,83 @@ Incluído na **Release 1.0** (a escolha de origem de tokens é pré-requisito do
 
 ## 12.5 Pendências para o Gate 0 (derivadas desta decisão)
 
-- [ ] Definir preço do Nanei+ (mensal/anual) e quotas de tokens (grátis e premium)
+- [ ] Aprovar preço do Nanei+ e quotas de tokens — **proposta detalhada na §12.6**
 - [ ] Selecionar gateway de pagamento (tokenização, PIX + cartão, conformidade PCI via gateway)
 - [ ] Jurídico: cláusula de BYOK nos termos de uso (responsabilidade do contrato usuária × provedor)
 - [ ] DPO: validar fluxo BYOK no RIPD (a pseudonimização mantém-se aplicável em ambas as origens)
+
+## 12.6 Proposta de preço e quotas (análise de mercado — 23/07/2026)
+
+**Status:** proposta para aprovação no Gate 0.
+
+### 12.6.1 Benchmark de mercado
+
+Preços de apps concorrentes de rastreamento de bebês, levantados em 23/07/2026 (App Store BR quando disponível; demais em moeda de origem):
+
+| App | Mensal | Anual | IA incluída? |
+|---|---|---|---|
+| **Huckleberry Plus** (App Store BR) | R$ 59,90 | R$ 299,90 | ❌ (só previsão de sono) |
+| **Huckleberry Premium** (App Store BR) | R$ 79,90 | R$ 599,90 | ✅ (chat "Berry" + consultoria de sono) |
+| **Napper** (App Store BR) | R$ 22,90–44,90 | R$ 99,90–169,90 | ❌ |
+| Glow Baby (EUA) | ~US$ 9,99 | — | ❌ |
+| Baby Connect (EUA) | US$ 4,99 | — | ❌ |
+| Baby Daybook (EUA) | — | US$ 29,99 | ❌ |
+| Pebbi (Reino Unido) | £ 2,49 | £ 19,99 | ❌ |
+
+**Leitura do mercado:**
+- No Brasil, o mercado se divide em uma faixa **premium** (Huckleberry: R$ 59,90–79,90/mês, único com IA) e uma faixa **acessível** (Napper: R$ 22,90–44,90/mês, foco em sono).
+- A média dos planos anuais no Brasil fica entre **R$ 100 e R$ 300** (excluindo o outlier Huckleberry Premium).
+- Nenhum concorrente oferece BYOK nem o pacote completo do Nanei 1.0 (rastreamento + sono + desenvolvimento + medicamentos + família + IA) — o gratuito do Nanei já cobre mais que o pago de vários concorrentes.
+
+### 12.6.2 Preço proposto
+
+| Plano | Preço | Racional |
+|---|---|---|
+| **Nanei Grátis** | R$ 0 | Aquisição e rede de indicação entre mães; produto completo (princípio "zero cobrança emocional") |
+| **Nanei+ mensal** | **R$ 24,90/mês** | Entrada no patamar do Napper (R$ 22,90–44,90) e ~60% abaixo do Huckleberry Plus — posição de desafiante com mais funcionalidades |
+| **Nanei+ anual** | **R$ 149,90/ano** (≈ R$ 12,49/mês, −50% vs. mensal) | Dentro da faixa anual do Napper (R$ 99,90–169,90) e metade do Huckleberry Plus anual; desconto agressivo para priorizar receita anual (menor churn no 1º ano do bebê) |
+
+Vantagem estrutural de distribuição: como a 1.0 é PWA sem lojas (§4.5), não há taxa de 15–30% da Apple/Google — o preço menor mantém margem igual ou superior à dos concorrentes.
+
+### 12.6.3 Custo de IA e dimensionamento das quotas
+
+Modelos e preços da API Anthropic (tabela oficial, jul/2026; câmbio de referência R$ 5,50/US$ — revalidar no Gate 0):
+
+| Uso no Nanei | Modelo | Input /1M tokens | Output /1M tokens |
+|---|---|---|---|
+| Extração de eventos por voz (RF-AIA-01) — tarefa estruturada e curta | Claude Haiku 4.5 | US$ 1,00 | US$ 5,00 |
+| Consulta ao histórico (RF-AIA-02) — raciocínio sobre dados | Claude Sonnet 5 | US$ 3,00 (US$ 2,00 promocional até 31/08/2026) | US$ 15,00 (US$ 10,00 promocional) |
+
+Custo estimado por interação (com prompt caching do system prompt — leitura de cache custa ~0,1× o input):
+
+| Interação | Tokens típicos (in / out) | Custo | Em R$ |
+|---|---|---|---|
+| Registro por voz (Haiku 4.5) | ~1.500 / ~300 | ~US$ 0,003 | ~R$ 0,02 |
+| Consulta ao histórico (Sonnet 5) | ~3.000 / ~500 | ~US$ 0,017 | ~R$ 0,09 |
+| **Média ponderada** (≈ 70% registros / 30% consultas) | — | ~US$ 0,007 | **~R$ 0,04** |
+
+### 12.6.4 Quotas propostas
+
+| Plano | Quota mensal de interações de IA* | Custo máximo/usuária | Custo realista** |
+|---|---|---|---|
+| **Grátis** | **50/mês** (~1–2/dia) | R$ 4,50 | < R$ 1,00 |
+| **Nanei+** | **300/mês** (~10/dia) | R$ 27,00 | R$ 4–9 |
+| **BYOK** (qualquer plano) | Sem quota da plataforma (fair use técnico: 1.000/mês contra abuso) | R$ 0 (custo no provedor da usuária) | R$ 0 |
+
+\* 1 interação = 1 registro por voz ou 1 consulta; a quota é exibida como medidor simples, sem expor "tokens" à usuária (RF-BIL-05).
+\*\* Considera utilização média de 20–30% da quota e cache hit no system prompt. O custo máximo do Nanei+ (R$ 27) só ocorre com 100% de uso e 100% de consultas — cenário coberto pela margem do anual + mensalidades e pela válvula de escape do BYOK.
+
+**Regras de operação:**
+1. Quota esgotada → oferta de upgrade **ou** ativação de BYOK; o fallback por toque (RF-AIA-05) segue ilimitado e gratuito.
+2. Aviso proativo a 80% da quota (RF-BIL-05).
+3. Quotas e modelo de IA são parâmetros de configuração (feature flags — RF-BIL-06), reajustáveis sem release.
+4. Revisar quotas após o beta com dados reais de uso (gatilho: custo médio de IA por usuária ativa > 25% da receita média por usuária).
+
+### 12.6.5 Sanidade econômica (cenário de referência)
+
+Para cada 1.000 usuárias ativas, assumindo conversão de 5% para o Nanei+ (benchmark de apps freemium de parentalidade) e receita média de R$ 15/assinante/mês (mix mensal + anual):
+
+- Receita: 50 assinantes × R$ 15 ≈ **R$ 750/mês**
+- Custo de IA: 950 grátis × R$ 1 + 50 premium × R$ 9 ≈ **R$ 1.400/mês**... ⚠️ **no pior cenário realista alto**; no cenário médio (uso de 20% das quotas): 950 × R$ 0,40 + 50 × R$ 4 ≈ **R$ 580/mês**
+
+**Conclusão:** o modelo fecha no cenário médio e fica exposto se o uso de IA do plano grátis for alto. Alavancas já embutidas: quota grátis conservadora (50/mês), Haiku 4.5 para a maioria das interações, prompt caching, BYOK como válvula de escape e quotas ajustáveis por feature flag. Meta de conversão ≥ 5% e monitoramento do custo de IA por usuária ativa desde o beta.
