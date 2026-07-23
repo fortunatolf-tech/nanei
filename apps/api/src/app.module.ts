@@ -1,12 +1,36 @@
 import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { readFileSync } from "node:fs";
 import { HealthController } from "./health.controller";
+import { PrismaService } from "./prisma.service";
+import { AuditService } from "./audit.service";
+import { AuthService } from "./auth/auth.service";
+import { AuthController } from "./auth/auth.controller";
+import { JwtGuard } from "./auth/jwt.guard";
+import { BabiesService } from "./babies/babies.service";
+import { BabiesController } from "./babies/babies.controller";
 
 /**
- * Módulo raiz. Os módulos de domínio (auth, families, tracking, ...) serão
- * registrados aqui a partir do S1, cada um importado do seu pacote em
- * /packages (propriedade por equipe — §8.1).
+ * Módulo raiz. Os módulos de domínio migram para /packages conforme as
+ * equipes assumem cada um (§8.1); na fase solo vivem aqui.
  */
 @Module({
-  controllers: [HealthController],
+  imports: [
+    JwtModule.register({
+      global: true,
+      privateKey: readFileSync(process.env.JWT_PRIVATE_KEY_PATH!, "utf8"),
+      publicKey: readFileSync(process.env.JWT_PUBLIC_KEY_PATH!, "utf8"),
+      signOptions: { algorithm: "RS256" }, // RNF-06
+      verifyOptions: { algorithms: ["RS256"] },
+    }),
+  ],
+  controllers: [HealthController, AuthController, BabiesController],
+  providers: [
+    PrismaService,
+    AuditService,
+    AuthService,
+    JwtGuard,
+    BabiesService,
+  ],
 })
 export class AppModule {}

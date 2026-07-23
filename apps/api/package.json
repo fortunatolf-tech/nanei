@@ -5,6 +5,7 @@
   "description": "API NestJS do Nanei (§4.2)",
   "scripts": {
     "build": "tsc",
+    "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
     "dev": "node --watch dist/main.js",
     "start": "node dist/main.js"
@@ -13,12 +14,20 @@
     "@nanei/contracts": "workspace:*",
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.1.0",
+    "@prisma/adapter-pg": "^7.9.0",
+    "@prisma/client": "^7.9.0",
+    "argon2": "^0.45.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.15.0",
+    "prisma": "^7.9.0",
     "typescript": "^5.8.0"
   }
 }
