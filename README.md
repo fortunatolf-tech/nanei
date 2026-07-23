@@ -43,6 +43,26 @@ Plataforma web mobile-first que centraliza, em um único produto, o rastreamento
 
 O documento original consolidado está preservado em [`docs/originais/artefatos-app-maes-bebes-v1.2.md`](docs/originais/artefatos-app-maes-bebes-v1.2.md).
 
+## Desenvolvimento
+
+Monorepo pnpm workspaces + Turborepo (Node.js ≥ 22, pnpm 11):
+
+```bash
+pnpm install        # instala todas as dependências
+pnpm typecheck      # typecheck de todos os pacotes
+pnpm build          # build do PWA (apps/web) e da API (apps/api)
+pnpm dev            # modo de desenvolvimento
+```
+
+| Diretório | Conteúdo |
+|---|---|
+| `apps/web` | PWA React 18 + Vite + MUI (MD3), mobile-first 360px, modo escuro padrão |
+| `apps/api` | API NestJS (prefixo `/v1`, health check em `/v1/health`) |
+| `packages/contracts` | Entidades e contratos entre módulos (§4.3) — mudanças exigem aprovação da Core |
+| `packages/*` | 12 pacotes de módulo com propriedade por equipe (ver `CODEOWNERS` e §8.1) |
+
+Fluxo de branches: `main` (implantável) ← `develop` (integração) ← `feature/<módulo>-<nº-RF>-<slug>`. Detalhes na [Parte 8](docs/08-gestao-colaborativa-e-git.md).
+
 ## Contribuindo
 
 O fluxo de trabalho (branches, Conventional Commits, regras de merge e branch protection) está descrito em [Gestão Colaborativa e Git](docs/08-gestao-colaborativa-e-git.md).

@@ -1,0 +1,18 @@
+{
+  "name": "@nanei/families",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Módulo FAM — família, perfis e permissões (equipe Core)",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nanei/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}

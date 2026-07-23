@@ -27,3 +27,6 @@ Thumbs.db
 
 # Arquivo-fonte local (versão versionada em docs/originais/)
 artefatos-app-maes-bebes (1).md
+
+# Configuração local do Claude Code
+.claude/
