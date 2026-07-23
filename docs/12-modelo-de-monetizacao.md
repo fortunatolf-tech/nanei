@@ -157,3 +157,25 @@ Para cada 1.000 usuárias ativas, assumindo conversão de 5% para o Nanei+ (benc
 - Custo de IA: 950 grátis × R$ 1 + 50 premium × R$ 9 ≈ **R$ 1.400/mês**... ⚠️ **no pior cenário realista alto**; no cenário médio (uso de 20% das quotas): 950 × R$ 0,40 + 50 × R$ 4 ≈ **R$ 580/mês**
 
 **Conclusão:** o modelo fecha no cenário médio e fica exposto se o uso de IA do plano grátis for alto. Alavancas já embutidas: quota grátis conservadora (50/mês), Haiku 4.5 para a maioria das interações, prompt caching, BYOK como válvula de escape e quotas ajustáveis por feature flag. Meta de conversão ≥ 5% e monitoramento do custo de IA por usuária ativa desde o beta.
+
+## 12.7 Gateway de pagamento — comparação e recomendação (23/07/2026)
+
+**Status:** recomendação para aprovação no Gate 0.
+
+Critérios (derivados de RF-BIL-02/07/08 e §7.2.1): assinatura recorrente mensal/anual, tokenização de cartão (sem armazenar dados — PCI no gateway), PIX, portal self-service de cancelamento/recibos, webhooks confiáveis e qualidade de documentação/API.
+
+| Critério | **Stripe** | Mercado Pago | Asaas | Pagar.me |
+|---|---|---|---|---|
+| Assinaturas recorrentes | ✅ Billing maduro (mensal/anual, trial, proration) | ✅ | ✅ (régua de cobrança) | ✅ |
+| Tokenização / PCI | ✅ referência de mercado | ✅ | ✅ | ✅ |
+| PIX | ✅ | ✅ nativo | ✅ nativo | ✅ nativo |
+| PIX Automático (recorrência, previsto pleno em 2026) | Em rollout | Em rollout | Em rollout | Em rollout |
+| Portal do assinante pronto (atende RF-BIL-07/08 sem código) | ✅ Customer Portal | Parcial | Parcial | Parcial |
+| Documentação / DX | ✅ excelente | Boa | Boa | Boa |
+| Perfil típico | SaaS/assinaturas | E-commerce/checkout pronto | SaaS nacional (boleto/régua) | Marketplaces/split |
+
+**Recomendação:**
+1. **Stripe Billing** como gateway da 1.0: é o mais forte exatamente no que o Nanei precisa (assinaturas + tokenização + Customer Portal, que entrega RF-BIL-07 e RF-BIL-08 quase sem código), com PIX suportado no Brasil.
+2. **Mercado Pago** como alternativa/plano B nacional caso a negociação de taxas ou o suporte a PIX Automático do Stripe atrase — a camada de billing deve ser isolada atrás de uma interface em `/packages/billing` (RF-BIL-06) para permitir troca de gateway sem tocar nos demais módulos.
+3. Adotar **PIX Automático** para a recorrência assim que estiver disponível no gateway escolhido (previsão de disponibilidade plena do BC em 2026) — reduz custo por transação e churn involuntário de cartão.
+4. Taxas exatas variam por volume e são negociáveis: cotação formal com os dois finalistas é a última pendência antes do Gate 0.
