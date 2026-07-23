@@ -1,0 +1,49 @@
+# Nanei — Sistema Web Mobile-First para Mães e Bebês
+
+> **nanei!** = dormiu / missão cumprida 💤
+
+**Domínio:** [www.nanei.com.br](https://www.nanei.com.br) (registrado)
+**Stack:** Node.js + React + Material Design 3 (MUI)
+**Plataforma:** PWA único responsivo (todas as telas) na 1.0; Capacitor para lojas no pós-1.0
+
+## Sobre o projeto
+
+Plataforma web mobile-first que centraliza, em um único produto, o rastreamento diário do bebê, previsão inteligente de sono, desenvolvimento infantil (saltos e marcos), consulta de medicamentos na lactação, sons para dormir, conteúdo educativo e colaboração familiar em tempo real — com segurança de nível clínico e conformidade total à LGPD.
+
+## Status da documentação
+
+| | |
+|---|---|
+| **Versão** | 1.2 |
+| **Data** | 23/07/2026 |
+| **Etapa** | 1ª Etapa — Estruturação e Validação |
+| **Status** | Aguardando aprovação das partes envolvidas (Gate 0) |
+
+**Release 1.0** = TRK + SLP + DEV + MED (gateway) + AIA + FAM + ANA + NTF + ACC
+**Pós-1.0** = MOM, EDU e SND
+
+## Documentação
+
+| # | Documento | Conteúdo |
+|---|---|---|
+| 1 | [Visão do Produto](docs/01-visao-do-produto.md) | Objetivo, personas, princípios de design |
+| 2 | [Requisitos Funcionais](docs/02-requisitos-funcionais.md) | RFs por módulo (TRK, SLP, DEV, MED, SND, AIA, MOM, EDU, FAM, ANA, NTF, ACC) |
+| 3 | [Requisitos Não Funcionais](docs/03-requisitos-nao-funcionais.md) | Desempenho, segurança, LGPD, acessibilidade, backup/DR |
+| 4 | [Arquitetura Técnica](docs/04-arquitetura-tecnica.md) | Visão geral, decisões, modelo de dados, API, estratégia de plataforma |
+| 5 | [Fluxos de Usuário](docs/05-fluxos-de-usuario.md) | F1–F9: onboarding, registro rápido, SweetSpot, LGPD, IA |
+| 6 | [Wireframes](docs/06-wireframes.md) | Baixa fidelidade, 360px (W1–W10) |
+| 7 | [Segurança e LGPD](docs/07-seguranca-e-lgpd.md) | Controles, mapa LGPD, retenção, matriz de permissões |
+| 8 | [Gestão Colaborativa e Git](docs/08-gestao-colaborativa-e-git.md) | Equipes, branches, regras de merge, cerimônias |
+| 9 | [Verificação de Coerência](docs/09-verificacao-de-coerencia.md) | Rastreabilidade, verificações, riscos R1–R10 |
+| 10 | [Sprints](docs/10-sprints.md) | Planejamento S0–S7 + pós-1.0 por equipe |
+| 11 | [Critérios de Finalização (Gates)](docs/11-criterios-de-finalizacao.md) | Gate 0, gate por PR, gate de release, Definition of Done |
+
+O documento original consolidado está preservado em [`docs/originais/artefatos-app-maes-bebes-v1.2.md`](docs/originais/artefatos-app-maes-bebes-v1.2.md).
+
+## Contribuindo
+
+O fluxo de trabalho (branches, Conventional Commits, regras de merge e branch protection) está descrito em [Gestão Colaborativa e Git](docs/08-gestao-colaborativa-e-git.md).
+
+## Próximo passo
+
+Revisão deste documento pelas partes envolvidas e decisão dos riscos pendentes (em especial **R6 — monetização**, bloqueante) para liberação do **Gate 0**.
