@@ -6,6 +6,18 @@ Ambiente de produção: **https://www.nanei.com.br** (PWA) e `…/v1` (API).
 
 ## [Não lançado]
 
+### 2026-07-23 — S2: gráficos de tendência e navegação por abas (RF-ANA-02)
+- **PWA:** nova aba **Análises** com gráficos dos últimos 7 dias (sono por dia,
+  mamadas por dia, fraldas por dia) via Recharts, mais tiles de médias semanais
+  (estende RF-ANA-01 para a semana). Navegação inferior MD3 (Início/Análises)
+  conforme o wireframe W1; a home foi reorganizada num shell com abas.
+- **Desempenho:** a aba Análises (Recharts, ~112 KB gzip) é carregada sob
+  demanda por code-splitting, mantendo o carregamento inicial leve (RNF-02).
+- **Qualidade:** configurado o **Vitest**; a agregação diária tem testes
+  unitários (5 casos) e o `pnpm test` passou a rodar no CI (RNF-13).
+- **Testes:** unitários da agregação (janela de 7 dias, somas, exclusão de
+  eventos fora da janela) verdes; typecheck, build e auditoria ok.
+
 ### 2026-07-23 — S1: múltiplos bebês com troca em 1 toque (RF-FAM-01)
 - **PWA:** seletor de bebês na barra (troca em 1 toque), fluxo "Adicionar
   bebê" e estado vazio que exige cadastrar o primeiro bebê. O bebê ativo é
