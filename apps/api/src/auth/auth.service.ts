@@ -7,13 +7,13 @@ import { JwtService } from "@nestjs/jwt";
 import * as argon2 from "argon2";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Request } from "express";
+import { versaoVigente } from "@nanei/legal";
 import { AuditService } from "../audit.service";
 import { PrismaService } from "../prisma.service";
 import type { LoginDto, RegisterDto } from "./auth.dto";
 
 const ACCESS_TTL = "15m"; // RNF-06
 const REFRESH_TTL_DIAS = 30;
-const VERSAO_POLITICA = "2026-07-23";
 const CATEGORIA_OBRIGATORIA = "dados_bebe";
 
 export interface Tokens {
@@ -53,13 +53,30 @@ export class AuthService {
           membros: { create: { userId: u.id, papel: "admin" } },
         },
       });
+      const versaoPolitica = versaoVigente("politica_privacidade");
       await tx.consent.createMany({
-        data: dto.consentimentos.map((categoria) => ({
-          userId: u.id,
-          categoria,
-          finalidade: "uso do aplicativo Nanei",
-          versaoPolitica: VERSAO_POLITICA,
-        })),
+        data: [
+          // Consentimentos granulares de tratamento de dados (RF-ACC-04)
+          ...dto.consentimentos.map((categoria) => ({
+            userId: u.id,
+            categoria,
+            finalidade: "uso do aplicativo Nanei",
+            versaoPolitica,
+          })),
+          // Aceite versionado de termos e política (RF-ACC-08/09)
+          {
+            userId: u.id,
+            categoria: "termos_uso",
+            finalidade: "aceite dos termos de uso",
+            versaoPolitica: versaoVigente("termos_uso"),
+          },
+          {
+            userId: u.id,
+            categoria: "politica_privacidade",
+            finalidade: "aceite da política de privacidade",
+            versaoPolitica,
+          },
+        ],
       });
       if (dto.nomeBebe && dto.nascimentoBebe) {
         await tx.baby.create({

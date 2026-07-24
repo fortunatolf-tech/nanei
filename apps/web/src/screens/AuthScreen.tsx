@@ -12,6 +12,8 @@ import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import { login, register } from "../api/auth";
 import { ApiError } from "../api/client";
+import { LegalDocDialog } from "../components/LegalDocDialog";
+import type { DocumentoLegalId } from "@nanei/legal";
 
 type Modo = "login" | "cadastro";
 
@@ -29,11 +31,13 @@ export function AuthScreen({ onDone }: { onDone: () => void }) {
   const [consentBebe, setConsentBebe] = useState(false);
   const [consentNotif, setConsentNotif] = useState(false);
   const [consentFotos, setConsentFotos] = useState(false);
+  const [aceiteLegal, setAceiteLegal] = useState(false);
+  const [docAberto, setDocAberto] = useState<DocumentoLegalId | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
 
   const cadastro = modo === "cadastro";
-  const podeCadastrar = email && senha.length >= 8 && consentBebe;
+  const podeCadastrar = email && senha.length >= 8 && consentBebe && aceiteLegal;
 
   async function submeter() {
     setErro(null);
@@ -47,6 +51,8 @@ export function AuthScreen({ onDone }: { onDone: () => void }) {
           email,
           senha,
           consentimentos,
+          aceiteTermos: aceiteLegal,
+          aceitePolitica: aceiteLegal,
           nomeBebe: nomeBebe || undefined,
           nascimentoBebe: nascimento
             ? new Date(nascimento).toISOString()
@@ -164,6 +170,41 @@ export function AuthScreen({ onDone }: { onDone: () => void }) {
                 label="Autorizo anexar fotos aos registros"
               />
             </FormGroup>
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={aceiteLegal}
+                  onChange={(e) => setAceiteLegal(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2">
+                  Li e aceito os{" "}
+                  <Link
+                    component="button"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDocAberto("termos_uso");
+                    }}
+                  >
+                    Termos de Uso
+                  </Link>{" "}
+                  e a{" "}
+                  <Link
+                    component="button"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDocAberto("politica_privacidade");
+                    }}
+                  >
+                    Política de Privacidade
+                  </Link>
+                </Typography>
+              }
+            />
             <Typography variant="caption" color="text.secondary">
               Serviço de caráter informativo — não substitui orientação médica.
               Você pode revogar cada consentimento a qualquer momento.
@@ -195,6 +236,7 @@ export function AuthScreen({ onDone }: { onDone: () => void }) {
           </Link>
         </Typography>
       </Stack>
+      <LegalDocDialog doc={docAberto} onClose={() => setDocAberto(null)} />
     </Box>
   );
 }

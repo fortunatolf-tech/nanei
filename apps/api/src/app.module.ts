@@ -9,6 +9,8 @@ import { AuthController } from "./auth/auth.controller";
 import { JwtGuard } from "./auth/jwt.guard";
 import { BabiesService } from "./babies/babies.service";
 import { BabiesController } from "./babies/babies.controller";
+import { LegalService } from "./legal/legal.service";
+import { LegalController } from "./legal/legal.controller";
 
 /**
  * Módulo raiz. Os módulos de domínio migram para /packages conforme as
@@ -24,13 +26,19 @@ import { BabiesController } from "./babies/babies.controller";
       verifyOptions: { algorithms: ["RS256"] },
     }),
   ],
-  controllers: [HealthController, AuthController, BabiesController],
+  controllers: [
+    HealthController,
+    AuthController,
+    BabiesController,
+    LegalController,
+  ],
   providers: [
     PrismaService,
     AuditService,
     AuthService,
     JwtGuard,
     BabiesService,
+    LegalService,
   ],
 })
 export class AppModule {}

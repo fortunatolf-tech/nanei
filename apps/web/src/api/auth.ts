@@ -4,6 +4,8 @@ export interface RegisterInput {
   email: string;
   senha: string;
   consentimentos: string[];
+  aceiteTermos: boolean;
+  aceitePolitica: boolean;
   nomeBebe?: string;
   nascimentoBebe?: string;
 }
