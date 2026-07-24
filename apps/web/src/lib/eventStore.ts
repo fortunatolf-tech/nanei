@@ -1,5 +1,5 @@
 import type { Event, TipoEvento } from "@nanei/contracts";
-import { createEvent, deleteEvent, listEvents } from "../api/babies";
+import { createEvent, deleteEvent, editEvent, listEvents } from "../api/babies";
 import { ApiError } from "../api/client";
 
 /**
@@ -14,12 +14,21 @@ const CACHE_KEY = "nanei.eventcache.v1";
 /** Registro local: espelha Event e acrescenta estado de sincronização. */
 export interface LocalEvent extends Event {
   idempotencyKey: string;
-  /** id atribuído pelo servidor após confirmação (usado no DELETE) */
+  /** id atribuído pelo servidor após confirmação (usado no PATCH/DELETE) */
   serverId?: string;
   /** false enquanto não confirmado no servidor */
   synced: boolean;
+  /** marca edição pendente de sync (RF-TRK-14) */
+  edited?: boolean;
   /** marca exclusão pendente de sync */
   deleted?: boolean;
+}
+
+/** Campos editáveis de um registro (RF-TRK-14). */
+export interface EventEdit {
+  inicio?: string;
+  fim?: string | null;
+  payload?: Record<string, unknown>;
 }
 
 type Listener = () => void;
@@ -99,6 +108,37 @@ export function addLocal(
   return ev;
 }
 
+/** Edita data/hora ou payload de um registro, com fila offline (RF-TRK-14). */
+export function editLocal(idempotencyKey: string, edit: EventEdit) {
+  const queue = load(QUEUE_KEY);
+  const naFila = queue.find((e) => e.idempotencyKey === idempotencyKey);
+  const base =
+    naFila ?? load(CACHE_KEY).find((e) => e.idempotencyKey === idempotencyKey);
+  if (!base || base.deleted) return;
+
+  const atualizado: LocalEvent = {
+    ...base,
+    inicio: edit.inicio ?? base.inicio,
+    fim: edit.fim === null ? undefined : (edit.fim ?? base.fim),
+    payload: edit.payload ?? base.payload,
+  };
+
+  if (naFila && !naFila.synced) {
+    // Ainda não subiu: mantém como criação, apenas com os novos valores.
+    saveQueue(
+      queue.map((e) => (e.idempotencyKey === idempotencyKey ? atualizado : e)),
+    );
+  } else {
+    // Já confirmado: enfileira uma edição pendente.
+    saveQueue([
+      ...queue.filter((e) => e.idempotencyKey !== idempotencyKey),
+      { ...atualizado, synced: true, edited: true },
+    ]);
+  }
+  emit();
+  void sync();
+}
+
 export function removeLocal(idempotencyKey: string) {
   const queue = load(QUEUE_KEY);
   const naFila = queue.find((e) => e.idempotencyKey === idempotencyKey);
@@ -135,6 +175,14 @@ export async function sync(babyIdHint?: string): Promise<void> {
       try {
         if (ev.deleted) {
           if (ev.serverId) await deleteEvent(babyId, ev.serverId);
+        } else if (ev.edited) {
+          if (ev.serverId) {
+            await editEvent(babyId, ev.serverId, {
+              inicio: ev.inicio,
+              fim: ev.fim,
+              payload: ev.payload,
+            });
+          }
         } else if (!ev.synced) {
           await createEvent(
             babyId,

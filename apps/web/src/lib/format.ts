@@ -19,3 +19,14 @@ export function fmtCrono(totalSeg: number): string {
   const s = Math.floor(totalSeg % 60);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
+
+/** Date → valor de <input type="datetime-local"> (horário local, sem fuso). */
+export function toLocalInput(d: Date): string {
+  const off = d.getTimezoneOffset() * 60_000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
+/** Valor de datetime-local → Date (interpretado no fuso local). */
+export function fromLocalInput(s: string): Date {
+  return new Date(s);
+}

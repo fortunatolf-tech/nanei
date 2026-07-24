@@ -60,3 +60,18 @@ export class CreateEventDto {
   @MaxLength(120)
   local?: string;
 }
+
+/** Edição de evento — registro retroativo / correção de data-hora (RF-TRK-14). */
+export class UpdateEventDto {
+  @IsOptional()
+  @IsISO8601()
+  inicio?: string;
+
+  @IsOptional()
+  @IsISO8601()
+  fim?: string;
+
+  @IsOptional()
+  @IsObject()
+  payload?: Record<string, unknown>;
+}

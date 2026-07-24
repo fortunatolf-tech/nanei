@@ -13,3 +13,39 @@ Pré-requisito de todos: **Gate 0 aprovado** ([Parte 11](11-criterios-de-finaliz
 | **S6 — Hardening** | Pentest (incl. fluxo BYOK), revisão RIPD, teste de restauração de backup, resposta a incidentes + **RF-BIL-07/08** | Testes E2E | Modo recém-nascido (RF-SLP-05) + **consulta IA (RF-AIA-02/03/04)** | Fármacos: classes/listas (RF-MED-03) + revisão de conteúdo dos saltos |
 | **S7 — Release 1.0** | Release branch, conformidade final, go-live | — | — | — |
 | **Pós-1.0** | Modo Ao vivo (RF-FAM-06); **empacotamento Capacitor p/ lojas ([§4.5](04-arquitetura-tecnica.md#45-estratégia-de-plataforma--decisão-apenas-pwa-na-10-site-único-responsivo))** | **Módulo MOM** (após RF-MOM-04) | Insights (RF-ANA-05), modo criança (RF-SLP-06) | **Módulo SND completo**; **módulo EDU** (condicionado ao plano de moderação — R7); DEV-09 |
+
+---
+
+## Progresso
+
+Status real da execução (atualizado a cada entrega). Log detalhado no
+[CHANGELOG](../CHANGELOG.md). Legenda: ✅ concluído · 🚧 em andamento · ⬜ pendente.
+
+> **Nota:** o desenvolvimento está adiantado em relação ao cronograma original
+> por rodar em modo solo, sem a dependência entre 4 equipes. O Gate 0 segue
+> formalmente pendente (preço/quotas e validações jurídico/DPO), mas a
+> construção foi liberada para acelerar a validação de conceito.
+
+### S0 — Fundação ✅
+- ✅ Monorepo pnpm + Turborepo, CI/CD (GitHub Actions), design system MD3 base
+- ✅ Auth RF-ACC-01/02 (Argon2id, JWT RS256, refresh com rotação)
+- ✅ Modelo `Event` + contratos (`packages/contracts`)
+- ✅ TLS/infra: PWA e API em produção (https://www.nanei.com.br)
+
+### S1 — em andamento 🚧
+| RF | Descrição | Status |
+|---|---|---|
+| RF-ACC-01/02 | Cadastro, login, sessão com refresh | ✅ |
+| RF-ACC-04 | Consentimento granular no cadastro (F1) | ✅ |
+| RF-ACC-07 | AuditLog append-only | ✅ |
+| RF-ACC-08/09 | Política/termos versionados e re-consentimento | ⬜ |
+| RF-FAM-03 | Papéis e matriz de permissões (§7.3) | 🚧 (autorização aplicada; convites no S2) |
+| RF-TRK-01 | Amamentação com cronômetro | ✅ |
+| RF-TRK-02/05/06 | Mamadeira, fralda, sono | ✅ |
+| RF-TRK-14 | Registro retroativo + edição de data/hora | ✅ |
+| RF-TRK-15 | Linha do tempo diária | ✅ |
+| RF-ANA-01 | Resumo automático do dia | ✅ |
+| RNF-03 | Funcionamento offline (fila + sync) | ✅ (base; refino no S4) |
+
+**Próximo no S1/S2:** múltiplos bebês na UI (RF-FAM-01), convites de cuidadores
+(RF-FAM-02), termos/política versionados (RF-ACC-08/09).

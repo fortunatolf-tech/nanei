@@ -28,6 +28,23 @@ export function createEvent(
   });
 }
 
+export interface EditEventInput {
+  inicio?: string;
+  fim?: string;
+  payload?: Record<string, unknown>;
+}
+
+export function editEvent(
+  babyId: string,
+  eventId: string,
+  input: EditEventInput,
+): Promise<Event> {
+  return api<Event>(`/babies/${babyId}/events/${eventId}`, {
+    method: "PATCH",
+    body: input,
+  });
+}
+
 export function deleteEvent(babyId: string, eventId: string): Promise<void> {
   return api<void>(`/babies/${babyId}/events/${eventId}`, { method: "DELETE" });
 }
