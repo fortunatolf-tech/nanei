@@ -39,6 +39,7 @@ Status real da execução (atualizado a cada entrega). Log detalhado no
 | RF-ACC-04 | Consentimento granular no cadastro (F1) | ✅ |
 | RF-ACC-07 | AuditLog append-only | ✅ |
 | RF-ACC-08/09 | Política/termos versionados e re-consentimento | ⬜ |
+| RF-FAM-01 | Múltiplos bebês, troca em 1 toque, dados independentes | ✅ |
 | RF-FAM-03 | Papéis e matriz de permissões (§7.3) | 🚧 (autorização aplicada; convites no S2) |
 | RF-TRK-01 | Amamentação com cronômetro | ✅ |
 | RF-TRK-02/05/06 | Mamadeira, fralda, sono | ✅ |
@@ -47,5 +48,5 @@ Status real da execução (atualizado a cada entrega). Log detalhado no
 | RF-ANA-01 | Resumo automático do dia | ✅ |
 | RNF-03 | Funcionamento offline (fila + sync) | ✅ (base; refino no S4) |
 
-**Próximo no S1/S2:** múltiplos bebês na UI (RF-FAM-01), convites de cuidadores
-(RF-FAM-02), termos/política versionados (RF-ACC-08/09).
+**Próximo no S1/S2:** termos/política versionados (RF-ACC-08/09), convites de
+cuidadores (RF-FAM-02), gráficos de tendência (RF-ANA-02).

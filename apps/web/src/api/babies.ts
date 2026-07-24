@@ -5,6 +5,17 @@ export function listBabies(): Promise<Baby[]> {
   return api<Baby[]>("/babies");
 }
 
+export interface NewBabyInput {
+  nome: string;
+  nascimento: string;
+  dataPrevistaParto?: string;
+  sexo?: "F" | "M";
+}
+
+export function createBaby(input: NewBabyInput): Promise<Baby> {
+  return api<Baby>("/babies", { method: "POST", body: input });
+}
+
 export interface NewEventInput {
   tipo: TipoEvento;
   inicio: string;

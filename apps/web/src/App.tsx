@@ -2,7 +2,6 @@ import { useState } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { isLoggedIn } from "./api/client";
-import { resetBabyCache } from "./lib/eventStore";
 import { AuthScreen } from "./screens/AuthScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 
@@ -22,19 +21,9 @@ export function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {logado ? (
-        <HomeScreen
-          onLogout={() => {
-            resetBabyCache();
-            setLogado(false);
-          }}
-        />
+        <HomeScreen onLogout={() => setLogado(false)} />
       ) : (
-        <AuthScreen
-          onDone={() => {
-            resetBabyCache();
-            setLogado(true);
-          }}
-        />
+        <AuthScreen onDone={() => setLogado(true)} />
       )}
     </ThemeProvider>
   );
