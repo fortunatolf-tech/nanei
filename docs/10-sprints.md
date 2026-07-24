@@ -40,7 +40,8 @@ Status real da execução (atualizado a cada entrega). Log detalhado no
 | RF-ACC-07 | AuditLog append-only | ✅ |
 | RF-ACC-08/09 | Política/termos versionados e re-consentimento | ✅ |
 | RF-FAM-01 | Múltiplos bebês, troca em 1 toque, dados independentes | ✅ |
-| RF-FAM-03 | Papéis e matriz de permissões (§7.3) | 🚧 (autorização aplicada; convites no S2) |
+| RF-FAM-02 | Convite de cuidadores por link (token 48h, uso único) | ✅ (antecipado do S2; e-mail no S5) |
+| RF-FAM-03 | Papéis e matriz de permissões (§7.3) | ✅ (autorização aplicada + gestão de cuidadores) |
 | RF-TRK-01 | Amamentação com cronômetro | ✅ |
 | RF-TRK-02/05/06 | Mamadeira, fralda, sono | ✅ |
 | RF-TRK-14 | Registro retroativo + edição de data/hora | ✅ |
@@ -50,5 +51,5 @@ Status real da execução (atualizado a cada entrega). Log detalhado no
 | RNF-03 | Funcionamento offline (fila + sync) | ✅ (base; refino no S4) |
 | RNF-13 | Testes automatizados + CI | 🚧 (Vitest configurado; cobertura crescendo) |
 
-**Próximo no S1/S2:** convites de cuidadores (RF-FAM-02), curvas de percentil
-OMS/CDC (RF-ANA-03).
+**Próximo no S1/S2:** sincronização em tempo real entre cuidadores (RF-FAM-04,
+WebSocket) e curvas de percentil OMS/CDC (RF-ANA-03).
