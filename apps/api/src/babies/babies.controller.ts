@@ -6,6 +6,7 @@ import {
   Headers,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -13,7 +14,7 @@ import {
 } from "@nestjs/common";
 import { JwtGuard, type AuthRequest } from "../auth/jwt.guard";
 import { BabiesService } from "./babies.service";
-import { CreateBabyDto, CreateEventDto } from "./babies.dto";
+import { CreateBabyDto, CreateEventDto, UpdateEventDto } from "./babies.dto";
 
 @Controller("babies")
 @UseGuards(JwtGuard)
@@ -48,6 +49,16 @@ export class BabiesController {
     @Headers("idempotency-key") idempotencyKey?: string,
   ) {
     return this.babies.createEvent(req.userId, id, dto, idempotencyKey);
+  }
+
+  @Patch(":id/events/:eventId")
+  updateEvent(
+    @Req() req: AuthRequest,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("eventId", ParseUUIDPipe) eventId: string,
+    @Body() dto: UpdateEventDto,
+  ) {
+    return this.babies.updateEvent(req.userId, id, eventId, dto);
   }
 
   @Delete(":id/events/:eventId")

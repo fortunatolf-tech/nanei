@@ -6,7 +6,11 @@ import {
 import type { Papel } from "@prisma/client";
 import { AuditService } from "../audit.service";
 import { PrismaService } from "../prisma.service";
-import type { CreateBabyDto, CreateEventDto } from "./babies.dto";
+import type {
+  CreateBabyDto,
+  CreateEventDto,
+  UpdateEventDto,
+} from "./babies.dto";
 
 /** Papéis com permissão de criar registros (matriz §7.3). */
 const PODE_REGISTRAR: Papel[] = ["admin", "editor", "registrador"];
@@ -108,6 +112,42 @@ export class BabiesService {
       userId,
     });
     return event;
+  }
+
+  /** Edição retroativa de data/hora ou payload (RF-TRK-14). */
+  async updateEvent(
+    userId: string,
+    babyId: string,
+    eventId: string,
+    dto: UpdateEventDto,
+  ) {
+    const { papel } = await this.membership(userId, babyId);
+    const event = await this.prisma.event.findFirst({
+      where: { id: eventId, babyId },
+    });
+    if (!event) throw new NotFoundException("registro não encontrado");
+    const proprio = event.criadoPorId === userId;
+    // Registrador edita só os próprios; admin/editor editam de terceiros (§7.3)
+    if (!proprio && !["admin", "editor"].includes(papel)) {
+      throw new ForbiddenException("papel sem permissão de editar de terceiros");
+    }
+    if (proprio && !PODE_REGISTRAR.includes(papel)) {
+      throw new ForbiddenException("papel sem permissão");
+    }
+    const atualizado = await this.prisma.event.update({
+      where: { id: eventId },
+      data: {
+        inicio: dto.inicio ? new Date(dto.inicio) : undefined,
+        fim: dto.fim ? new Date(dto.fim) : undefined,
+        payload: dto.payload ? (dto.payload as object) : undefined,
+        editadoEm: new Date(),
+      },
+    });
+    await this.audit.log("event_update", "Event", {
+      entidadeId: eventId,
+      userId,
+    });
+    return atualizado;
   }
 
   async deleteEvent(userId: string, babyId: string, eventId: string) {

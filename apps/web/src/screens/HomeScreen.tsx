@@ -12,10 +12,12 @@ import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import {
   addLocal,
+  editLocal,
   getEvents,
   removeLocal,
   subscribe,
   sync,
+  type LocalEvent,
 } from "../lib/eventStore";
 import { eventsOfDay } from "../lib/storage";
 import { logout } from "../api/auth";
@@ -24,6 +26,7 @@ import {
   type BreastResult,
 } from "../components/BreastTimerDialog";
 import { BottleDialog, DiaperDialog, SleepDialog } from "../components/QuickDialogs";
+import { EditTimeDialog } from "../components/EditTimeDialog";
 import { Timeline } from "../components/Timeline";
 import { DailySummary } from "../components/DailySummary";
 
@@ -54,6 +57,7 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
   const events = useSyncExternalStore(subscribe, getEvents);
   const online = useOnline();
   const [dialogo, setDialogo] = useState<Dialogo>(null);
+  const [editando, setEditando] = useState<LocalEvent | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,7 +65,9 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
   }, []);
 
   const hoje = useMemo(() => eventsOfDay(events, new Date()), [events]);
-  const pendentes = events.filter((e) => !e.synced && !e.deleted).length;
+  const pendentes = events.filter(
+    (e) => (!e.synced || e.edited) && !e.deleted,
+  ).length;
 
   const ladoSugerido: "E" | "D" = useMemo(() => {
     const ultima = [...events]
@@ -148,10 +154,16 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
           </Typography>
         </Divider>
 
-        <Timeline events={hoje} onDelete={(id) => {
-          removeLocal(id);
-          setToast("Registro excluído");
-        }} />
+        <Timeline
+          events={hoje}
+          onDelete={(id) => {
+            removeLocal(id);
+            setToast("Registro excluído");
+          }}
+          onEdit={(id) =>
+            setEditando(events.find((e) => e.idempotencyKey === id) ?? null)
+          }
+        />
       </Container>
 
       <BreastTimerDialog
@@ -163,27 +175,39 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
       <BottleDialog
         open={dialogo === "mamadeira"}
         onClose={() => setDialogo(null)}
-        onSave={(ml, tipo) => {
-          addLocal("mamadeira", { ml, tipo }, new Date());
+        onSave={(ml, tipo, quando) => {
+          addLocal("mamadeira", { ml, tipo }, quando);
           registrou("Mamadeira registrada");
         }}
       />
       <DiaperDialog
         open={dialogo === "fralda"}
         onClose={() => setDialogo(null)}
-        onSave={(tipo) => {
-          addLocal("fralda", { tipo }, new Date());
+        onSave={(tipo, quando) => {
+          addLocal("fralda", { tipo }, quando);
           registrou("Fralda registrada");
         }}
       />
       <SleepDialog
         open={dialogo === "sono"}
         onClose={() => setDialogo(null)}
-        onSave={(minutos, tipo) => {
-          const fim = new Date();
+        onSave={(minutos, tipo, fim) => {
           const inicio = new Date(fim.getTime() - minutos * 60_000);
           addLocal("sono", { minutos, tipo }, inicio, fim);
           registrou("Sono registrado");
+        }}
+      />
+
+      <EditTimeDialog
+        event={editando}
+        onClose={() => setEditando(null)}
+        onSave={(key, inicio, fim) => {
+          editLocal(key, {
+            inicio: inicio.toISOString(),
+            fim: fim ? fim.toISOString() : null,
+          });
+          setEditando(null);
+          setToast("Horário atualizado");
         }}
       />
 

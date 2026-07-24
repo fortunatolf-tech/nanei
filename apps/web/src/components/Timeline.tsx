@@ -1,6 +1,7 @@
 import type { Event } from "@nanei/contracts";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
@@ -31,8 +32,13 @@ function descricao(e: Event): string {
   }
 }
 
-/** Linha do tempo diária (RF-TRK-15, wireframe W1). */
-export function Timeline(props: { events: Event[]; onDelete: (id: string) => void }) {
+/** Linha do tempo diária (RF-TRK-15, wireframe W1). Tocar num item edita o
+ * horário (RF-TRK-14). Um `•` indica registro ainda não sincronizado. */
+export function Timeline(props: {
+  events: (Event & { synced?: boolean; edited?: boolean })[];
+  onDelete: (id: string) => void;
+  onEdit: (id: string) => void;
+}) {
   if (props.events.length === 0) {
     return (
       <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
@@ -41,10 +47,11 @@ export function Timeline(props: { events: Event[]; onDelete: (id: string) => voi
     );
   }
   return (
-    <List dense>
+    <List dense disablePadding>
       {props.events.map((e) => (
         <ListItem
           key={e.id}
+          disablePadding
           secondaryAction={
             <IconButton
               edge="end"
@@ -55,9 +62,16 @@ export function Timeline(props: { events: Event[]; onDelete: (id: string) => voi
             </IconButton>
           }
         >
-          <ListItemText
-            primary={`${fmtHora(e.inicio)}  ${ICONES[e.tipo] ?? "•"}  ${descricao(e)}`}
-          />
+          <ListItemButton onClick={() => props.onEdit(e.id)}>
+            <ListItemText
+              primary={`${fmtHora(e.inicio)}  ${ICONES[e.tipo] ?? "•"}  ${descricao(e)}`}
+              secondary={
+                e.synced === false || e.edited
+                  ? "aguardando sincronização"
+                  : undefined
+              }
+            />
+          </ListItemButton>
         </ListItem>
       ))}
     </List>
