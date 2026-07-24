@@ -6,6 +6,28 @@ Ambiente de produção: **https://www.nanei.com.br** (PWA) e `…/v1` (API).
 
 ## [Não lançado]
 
+### 2026-07-24 — S2: convite de cuidadores por link (RF-FAM-02/03)
+- **Compartilhamento em família:** administrador pode convidar cuidadores por
+  **link com token de uso único (48h)**, escolhendo o papel (Editor,
+  Registrador, Visualizador ou Administrador) conforme a matriz §7.3. O
+  convidado abre o link, cria/entra na própria conta (F1 reduzido) e passa a
+  ver os registros compartilhados do bebê.
+- **Segurança:** o token é guardado apenas como hash (só o link tem o valor);
+  aceite exige que o e-mail da conta corresponda ao do convite; convites
+  expiram, são de uso único e podem ser revogados; apenas admin gerencia
+  cuidadores (403 para os demais). Toda ação gera log de auditoria
+  (`invite_create/accept/revoke`).
+- **PWA:** nova tela **Família e cuidadores** (menu da barra) com lista de
+  membros, formulário de convite, cópia do link e revogação de pendentes;
+  tela de aceite acessada por `?convite=<token>` que mostra família e papel
+  antes de confirmar. Fecha o RF-FAM-03 (gestão de papéis).
+- **Banco:** novo modelo `Invite` + migração `add_invite` aplicada no
+  PostgreSQL de produção.
+- **Testes:** por HTTP na API — fluxo completo (convite → preview → aceite →
+  bebê visível ao cuidador) e casos de segurança (não-admin 403, e-mail
+  divergente 403, papel inválido 400, e-mail já membro 400, reuso de token
+  400, não-membro lendo a família 403); typecheck, testes e build verdes.
+
 ### 2026-07-24 — S1: termos e política versionados com re-consentimento (RF-ACC-08/09)
 - **Documentos legais:** novo pacote `@nanei/legal` com **Termos de Uso** e
   **Política de Privacidade** versionados (data ISO) — fonte única consumida

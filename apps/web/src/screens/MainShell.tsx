@@ -22,6 +22,7 @@ import {
 import { TopBar } from "../components/TopBar";
 import { BottomNav, type Aba } from "../components/BottomNav";
 import { AddBabyDialog } from "../components/AddBabyDialog";
+import { FamilyDialog } from "../components/FamilyDialog";
 import { HomeContent } from "./HomeContent";
 
 // Recharts é pesado: carrega só quando a aba Análises é aberta (RNF-02).
@@ -50,12 +51,15 @@ export function MainShell({ onLogout }: { onLogout: () => void }) {
   const online = useOnline();
   const [aba, setAba] = useState<Aba>("home");
   const [addBaby, setAddBaby] = useState(false);
+  const [family, setFamily] = useState(false);
 
   useEffect(() => {
     void loadBabies();
   }, []);
 
   const semBebe = babyState.carregado && babyState.babies.length === 0;
+  const activeFamilyId =
+    babyState.babies.find((b) => b.id === babyState.activeId)?.familyId ?? null;
   const pendentes = events.filter(
     (e) => (!e.synced || e.edited) && !e.deleted,
   ).length;
@@ -75,6 +79,7 @@ export function MainShell({ onLogout }: { onLogout: () => void }) {
         pendentes={pendentes}
         onSelect={selectBaby}
         onAdd={() => setAddBaby(true)}
+        onFamily={() => setFamily(true)}
         onLogout={sair}
       />
 
@@ -110,6 +115,12 @@ export function MainShell({ onLogout }: { onLogout: () => void }) {
         obrigatorio={semBebe}
         onClose={() => setAddBaby(false)}
         onDone={() => setAddBaby(false)}
+      />
+
+      <FamilyDialog
+        familyId={activeFamilyId}
+        open={family}
+        onClose={() => setFamily(false)}
       />
     </Box>
   );

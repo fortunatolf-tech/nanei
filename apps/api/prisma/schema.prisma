@@ -48,10 +48,31 @@ model User {
 }
 
 model Family {
-  id      String         @id @default(uuid())
-  nome    String
-  membros FamilyMember[]
-  bebes   Baby[]
+  id       String         @id @default(uuid())
+  nome     String
+  membros  FamilyMember[]
+  bebes    Baby[]
+  convites Invite[]
+}
+
+/// Convite de cuidador por link com token de uso único (RF-FAM-02, fluxo F4).
+/// Guarda apenas o hash do token; o token em claro só existe no link gerado.
+model Invite {
+  id          String    @id @default(uuid())
+  familyId    String
+  email       String
+  papel       Papel
+  tokenHash   String    @unique
+  criadoPorId String
+  expiraEm    DateTime
+  aceitoEm    DateTime?
+  aceitoPorId String?
+  revogadoEm  DateTime?
+  criadoEm    DateTime  @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
 }
 
 model FamilyMember {
