@@ -24,6 +24,9 @@ importers:
       '@nanei/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@nanei/legal':
+        specifier: workspace:*
+        version: link:../../packages/legal
       '@nestjs/common':
         specifier: ^11.1.0
         version: 11.1.28(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0)
@@ -85,6 +88,9 @@ importers:
       '@nanei/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@nanei/legal':
+        specifier: workspace:*
+        version: link:../../packages/legal
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -188,6 +194,12 @@ importers:
       '@nanei/contracts':
         specifier: workspace:*
         version: link:../contracts
+    devDependencies:
+      typescript:
+        specifier: ^5.8.0
+        version: 5.8.2
+
+  packages/legal:
     devDependencies:
       typescript:
         specifier: ^5.8.0

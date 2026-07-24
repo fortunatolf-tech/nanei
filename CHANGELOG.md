@@ -6,6 +6,27 @@ Ambiente de produção: **https://www.nanei.com.br** (PWA) e `…/v1` (API).
 
 ## [Não lançado]
 
+### 2026-07-24 — S1: termos e política versionados com re-consentimento (RF-ACC-08/09)
+- **Documentos legais:** novo pacote `@nanei/legal` com **Termos de Uso** e
+  **Política de Privacidade** versionados (data ISO) — fonte única consumida
+  pela API e pela web. Inclui a cláusula obrigatória de caráter informativo
+  ("não substitui orientação médica"), protegendo os módulos MED/DEV/EDU
+  (RF-ACC-09).
+- **Cadastro:** aceite explícito de termos e política agora é obrigatório
+  (checkbox com links que abrem os documentos para leitura); a versão aceita é
+  registrada como consentimento auditável no servidor.
+- **Re-consentimento (RF-ACC-08):** ao publicar uma versão nova, a API detecta
+  a divergência (`GET /legal/status`) e o PWA bloqueia o app com um diálogo de
+  re-aceite (`POST /legal/aceite`) até o usuário aceitar; falha de rede não
+  bloqueia (revalida na próxima abertura). Cada aceite gera log de auditoria.
+- **Arquitetura:** o pacote é resolvido por `exports` condicionais — a web
+  (bundler) usa o fonte TS direto e a API (runtime Node) usa o `dist`
+  compilado; só a API precisa buildar o pacote.
+- **Testes:** por HTTP na API — cadastro bloqueado sem aceite (400), cadastro
+  com aceite (201), status sem pendências pós-cadastro, e o ciclo completo de
+  re-consentimento com bump de versão (pendência detectada → aceite → limpa);
+  typecheck, testes e build verdes.
+
 ### 2026-07-23 — S2: gráficos de tendência e navegação por abas (RF-ANA-02)
 - **PWA:** nova aba **Análises** com gráficos dos últimos 7 dias (sono por dia,
   mamadas por dia, fraldas por dia) via Recharts, mais tiles de médias semanais

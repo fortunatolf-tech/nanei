@@ -1,6 +1,8 @@
 import {
   ArrayNotEmpty,
+  Equals,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsISO8601,
   IsOptional,
@@ -27,6 +29,16 @@ export class RegisterDto {
   @IsString({ each: true })
   consentimentos!: string[];
 
+  /** Aceite dos Termos de Uso (RF-ACC-09) — obrigatório no cadastro. */
+  @IsBoolean()
+  @Equals(true, { message: "é obrigatório aceitar os Termos de Uso" })
+  aceiteTermos!: boolean;
+
+  /** Aceite da Política de Privacidade (RF-ACC-08) — obrigatório. */
+  @IsBoolean()
+  @Equals(true, { message: "é obrigatório aceitar a Política de Privacidade" })
+  aceitePolitica!: boolean;
+
   @IsOptional()
   @IsString()
   @MaxLength(80)
@@ -48,4 +60,12 @@ export class LoginDto {
 export class RefreshDto {
   @IsString()
   refreshToken!: string;
+}
+
+/** Re-aceite de documentos legais atualizados (RF-ACC-08). */
+export class AceiteLegalDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  documentos!: string[];
 }
