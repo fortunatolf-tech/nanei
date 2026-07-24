@@ -6,6 +6,17 @@ Ambiente de produção: **https://www.nanei.com.br** (PWA) e `…/v1` (API).
 
 ## [Não lançado]
 
+### 2026-07-23 — S1: múltiplos bebês com troca em 1 toque (RF-FAM-01)
+- **PWA:** seletor de bebês na barra (troca em 1 toque), fluxo "Adicionar
+  bebê" e estado vazio que exige cadastrar o primeiro bebê. O bebê ativo é
+  persistido entre sessões.
+- **Offline:** fila e cache de eventos passaram a ser segregados por bebê —
+  cada um tem seus próprios registros, independentes; o `eventStore` agora é
+  consciente do bebê ativo.
+- **Testes:** por HTTPS — criação de segundo bebê, isolamento dos eventos
+  entre bebês e bloqueio (403) de acesso a bebê de outra conta; typecheck e
+  build verdes.
+
 ### 2026-07-23 — S1: registro retroativo e edição de data/hora (RF-TRK-14)
 - **API:** `PATCH /v1/babies/:id/events/:eventId` edita início, fim e payload;
   grava `editadoEm`, respeita a matriz de permissões (§7.3) e gera AuditLog.

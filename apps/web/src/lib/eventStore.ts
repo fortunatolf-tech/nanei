@@ -3,13 +3,18 @@ import { createEvent, deleteEvent, editEvent, listEvents } from "../api/babies";
 import { ApiError } from "../api/client";
 
 /**
- * Store de eventos offline-first (RNF-03). Cada registro nasce local com um
- * `idempotencyKey` que também é a chave de sync: a fila é reenviada ao
- * reconectar e o backend deduplica pela mesma chave (§4.4). Enquanto o
- * registro não confirma no servidor, ele já aparece na linha do tempo.
+ * Store de eventos offline-first (RNF-03), por bebê (RF-FAM-01). Cada registro
+ * nasce local com um `idempotencyKey` que também é a chave de sync: a fila é
+ * reenviada ao reconectar e o backend deduplica pela mesma chave (§4.4).
+ * Enquanto o registro não confirma no servidor, ele já aparece na linha do
+ * tempo. Fila e cache são segregados por bebê, então cada um tem seus dados.
  */
-const QUEUE_KEY = "nanei.queue.v1";
-const CACHE_KEY = "nanei.eventcache.v1";
+function queueKey(babyId: string) {
+  return `nanei.queue.v2.${babyId}`;
+}
+function cacheKey(babyId: string) {
+  return `nanei.cache.v2.${babyId}`;
+}
 
 /** Registro local: espelha Event e acrescenta estado de sincronização. */
 export interface LocalEvent extends Event {
@@ -31,14 +36,13 @@ export interface EventEdit {
   payload?: Record<string, unknown>;
 }
 
+/** Bebê cujos eventos estão em foco. Definido pelo babyStore. */
+let activeBabyId: string | null = null;
+
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
-/**
- * Snapshot memoizado para useSyncExternalStore: a referência só muda quando
- * os dados mudam (via emit), evitando loop de renderização no React.
- */
-let snapshot: LocalEvent[] = computeEvents();
+let snapshot: LocalEvent[] = [];
 
 function emit() {
   snapshot = computeEvents();
@@ -50,6 +54,14 @@ export function subscribe(l: Listener): () => void {
   return () => listeners.delete(l);
 }
 
+/** Troca o bebê ativo (RF-FAM-01) e recarrega o snapshot correspondente. */
+export function setActiveBaby(babyId: string | null) {
+  if (activeBabyId === babyId) return;
+  activeBabyId = babyId;
+  emit();
+  if (babyId) void sync();
+}
+
 function load(key: string): LocalEvent[] {
   try {
     return JSON.parse(localStorage.getItem(key) ?? "[]") as LocalEvent[];
@@ -58,21 +70,27 @@ function load(key: string): LocalEvent[] {
   }
 }
 
+function loadQueue(): LocalEvent[] {
+  return activeBabyId ? load(queueKey(activeBabyId)) : [];
+}
+
+function loadCache(): LocalEvent[] {
+  return activeBabyId ? load(cacheKey(activeBabyId)) : [];
+}
+
 function saveQueue(items: LocalEvent[]) {
-  localStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+  if (activeBabyId) localStorage.setItem(queueKey(activeBabyId), JSON.stringify(items));
 }
 
 function saveCache(items: LocalEvent[]) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify(items));
+  if (activeBabyId) localStorage.setItem(cacheKey(activeBabyId), JSON.stringify(items));
 }
 
 /** Eventos confirmados (cache do servidor) + pendentes na fila, unificados. */
 function computeEvents(): LocalEvent[] {
-  const cache = load(CACHE_KEY);
-  const queue = load(QUEUE_KEY);
   const byKey = new Map<string, LocalEvent>();
-  for (const e of cache) byKey.set(e.idempotencyKey, e);
-  for (const e of queue) byKey.set(e.idempotencyKey, e); // fila sobrepõe cache
+  for (const e of loadCache()) byKey.set(e.idempotencyKey, e);
+  for (const e of loadQueue()) byKey.set(e.idempotencyKey, e); // fila sobrepõe cache
   return [...byKey.values()].filter((e) => !e.deleted);
 }
 
@@ -86,12 +104,13 @@ export function addLocal(
   payload: Record<string, unknown>,
   inicio: Date,
   fim?: Date,
-): LocalEvent {
+): LocalEvent | null {
+  if (!activeBabyId) return null;
   const key = crypto.randomUUID();
   const ev: LocalEvent = {
     id: key,
     idempotencyKey: key,
-    babyId: "",
+    babyId: activeBabyId,
     tipo,
     inicio: inicio.toISOString(),
     fim: fim?.toISOString(),
@@ -100,9 +119,7 @@ export function addLocal(
     criadoEm: new Date().toISOString(),
     synced: false,
   };
-  const queue = load(QUEUE_KEY);
-  queue.push(ev);
-  saveQueue(queue);
+  saveQueue([...loadQueue(), ev]);
   emit();
   void sync();
   return ev;
@@ -110,10 +127,10 @@ export function addLocal(
 
 /** Edita data/hora ou payload de um registro, com fila offline (RF-TRK-14). */
 export function editLocal(idempotencyKey: string, edit: EventEdit) {
-  const queue = load(QUEUE_KEY);
+  const queue = loadQueue();
   const naFila = queue.find((e) => e.idempotencyKey === idempotencyKey);
   const base =
-    naFila ?? load(CACHE_KEY).find((e) => e.idempotencyKey === idempotencyKey);
+    naFila ?? loadCache().find((e) => e.idempotencyKey === idempotencyKey);
   if (!base || base.deleted) return;
 
   const atualizado: LocalEvent = {
@@ -140,17 +157,16 @@ export function editLocal(idempotencyKey: string, edit: EventEdit) {
 }
 
 export function removeLocal(idempotencyKey: string) {
-  const queue = load(QUEUE_KEY);
+  const queue = loadQueue();
   const naFila = queue.find((e) => e.idempotencyKey === idempotencyKey);
   if (naFila && !naFila.synced) {
     // Ainda não subiu: some sem deixar rastro.
     saveQueue(queue.filter((e) => e.idempotencyKey !== idempotencyKey));
   } else {
-    // Já confirmado: marca exclusão pendente para o sync propagar.
-    const existente = naFila ?? {
-      ...load(CACHE_KEY).find((e) => e.idempotencyKey === idempotencyKey)!,
-    };
+    const existente =
+      naFila ?? loadCache().find((e) => e.idempotencyKey === idempotencyKey);
     if (!existente) return;
+    // Já confirmado: marca exclusão pendente para o sync propagar.
     saveQueue([
       ...queue.filter((e) => e.idempotencyKey !== idempotencyKey),
       { ...existente, deleted: true },
@@ -162,15 +178,13 @@ export function removeLocal(idempotencyKey: string) {
 
 let syncing = false;
 
-/** Reenvia a fila e recarrega o cache do servidor. Silencioso se offline. */
-export async function sync(babyIdHint?: string): Promise<void> {
-  if (syncing || !navigator.onLine) return;
+/** Reenvia a fila e recarrega o cache do bebê ativo. Silencioso se offline. */
+export async function sync(): Promise<void> {
+  const babyId = activeBabyId;
+  if (syncing || !babyId || !navigator.onLine) return;
   syncing = true;
   try {
-    const babyId = babyIdHint ?? (await resolveBabyId());
-    if (!babyId) return;
-
-    let queue = load(QUEUE_KEY);
+    let queue = load(queueKey(babyId));
     for (const ev of queue) {
       try {
         if (ev.deleted) {
@@ -195,14 +209,13 @@ export async function sync(babyIdHint?: string): Promise<void> {
             ev.idempotencyKey,
           );
         }
-        // Sucesso: remove da fila.
         queue = queue.filter((e) => e.idempotencyKey !== ev.idempotencyKey);
-        saveQueue(queue);
+        localStorage.setItem(queueKey(babyId), JSON.stringify(queue));
       } catch (e) {
         // 4xx (ex.: sem permissão) não adianta reter; 5xx/rede mantém na fila.
         if (e instanceof ApiError && e.status >= 400 && e.status < 500) {
           queue = queue.filter((x) => x.idempotencyKey !== ev.idempotencyKey);
-          saveQueue(queue);
+          localStorage.setItem(queueKey(babyId), JSON.stringify(queue));
         } else {
           break; // provável rede: tenta tudo de novo na próxima
         }
@@ -217,27 +230,14 @@ export async function sync(babyIdHint?: string): Promise<void> {
       serverId: e.id,
       synced: true,
     }));
-    saveCache(cache);
-    emit();
+    localStorage.setItem(cacheKey(babyId), JSON.stringify(cache));
+    // Só reflete na UI se ainda for o bebê em foco (evita corrida ao trocar).
+    if (activeBabyId === babyId) emit();
   } catch {
     /* offline ou sessão inválida: mantém estado local */
   } finally {
     syncing = false;
   }
-}
-
-let babyIdCache: string | null = null;
-
-async function resolveBabyId(): Promise<string | null> {
-  if (babyIdCache) return babyIdCache;
-  const { listBabies } = await import("../api/babies");
-  const babies = await listBabies();
-  babyIdCache = babies[0]?.id ?? null;
-  return babyIdCache;
-}
-
-export function resetBabyCache() {
-  babyIdCache = null;
 }
 
 // Sincroniza ao voltar a ficar online.

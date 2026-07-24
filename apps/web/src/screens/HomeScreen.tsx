@@ -16,7 +16,6 @@ import {
   getEvents,
   removeLocal,
   subscribe,
-  sync,
   type LocalEvent,
 } from "../lib/eventStore";
 import { eventsOfDay } from "../lib/storage";
@@ -29,6 +28,15 @@ import { BottleDialog, DiaperDialog, SleepDialog } from "../components/QuickDial
 import { EditTimeDialog } from "../components/EditTimeDialog";
 import { Timeline } from "../components/Timeline";
 import { DailySummary } from "../components/DailySummary";
+import { BabySwitcher } from "../components/BabySwitcher";
+import { AddBabyDialog } from "../components/AddBabyDialog";
+import {
+  getBabyState,
+  loadBabies,
+  resetBabies,
+  selectBaby,
+  subscribeBabies,
+} from "../lib/babyStore";
 
 type Dialogo = null | "mamada" | "mamadeira" | "fralda" | "sono";
 
@@ -55,14 +63,18 @@ function useOnline(): boolean {
 
 export function HomeScreen({ onLogout }: { onLogout: () => void }) {
   const events = useSyncExternalStore(subscribe, getEvents);
+  const babyState = useSyncExternalStore(subscribeBabies, getBabyState);
   const online = useOnline();
   const [dialogo, setDialogo] = useState<Dialogo>(null);
   const [editando, setEditando] = useState<LocalEvent | null>(null);
+  const [addBaby, setAddBaby] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    void sync();
+    void loadBabies();
   }, []);
+
+  const semBebe = babyState.carregado && babyState.babies.length === 0;
 
   const hoje = useMemo(() => eventsOfDay(events, new Date()), [events]);
   const pendentes = events.filter(
@@ -95,6 +107,7 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
 
   function sair() {
     logout();
+    resetBabies();
     onLogout();
   }
 
@@ -102,9 +115,20 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
     <>
       <AppBar position="sticky" color="transparent" elevation={0}>
         <Toolbar>
-          <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
-            nanei!
-          </Typography>
+          {babyState.babies.length > 0 ? (
+            <Box sx={{ flexGrow: 1 }}>
+              <BabySwitcher
+                babies={babyState.babies}
+                activeId={babyState.activeId}
+                onSelect={selectBaby}
+                onAdd={() => setAddBaby(true)}
+              />
+            </Box>
+          ) : (
+            <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
+              nanei!
+            </Typography>
+          )}
           {!online && (
             <Chip size="small" label="offline" color="warning" sx={{ mr: 1 }} />
           )}
@@ -122,48 +146,61 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
       </AppBar>
 
       <Container maxWidth="sm" sx={{ pb: 6 }}>
-        <Box sx={{ my: 1.5 }}>
-          <DailySummary events={hoje} />
-        </Box>
+        {semBebe ? (
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>
+              Você ainda não tem nenhum bebê cadastrado.
+            </Typography>
+            <Button variant="contained" onClick={() => setAddBaby(true)}>
+              Adicionar bebê
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <Box sx={{ my: 1.5 }}>
+              <DailySummary events={hoje} />
+            </Box>
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-            gap: 1.5,
-          }}
-        >
-          {CARDS.map((c) => (
-            <Card key={c.id} variant="outlined">
-              <CardActionArea
-                onClick={() => setDialogo(c.id)}
-                sx={{ p: 2, minHeight: 88, textAlign: "center" }}
-              >
-                <Typography variant="h4" component="span" display="block">
-                  {c.icone}
-                </Typography>
-                <Typography variant="body2">{c.rotulo}</Typography>
-              </CardActionArea>
-            </Card>
-          ))}
-        </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                gap: 1.5,
+              }}
+            >
+              {CARDS.map((c) => (
+                <Card key={c.id} variant="outlined">
+                  <CardActionArea
+                    onClick={() => setDialogo(c.id)}
+                    sx={{ p: 2, minHeight: 88, textAlign: "center" }}
+                  >
+                    <Typography variant="h4" component="span" display="block">
+                      {c.icone}
+                    </Typography>
+                    <Typography variant="body2">{c.rotulo}</Typography>
+                  </CardActionArea>
+                </Card>
+              ))}
+            </Box>
 
-        <Divider sx={{ my: 2 }}>
-          <Typography variant="overline" color="text.secondary">
-            Hoje
-          </Typography>
-        </Divider>
+            <Divider sx={{ my: 2 }}>
+              <Typography variant="overline" color="text.secondary">
+                Hoje
+              </Typography>
+            </Divider>
 
-        <Timeline
-          events={hoje}
-          onDelete={(id) => {
-            removeLocal(id);
-            setToast("Registro excluído");
-          }}
-          onEdit={(id) =>
-            setEditando(events.find((e) => e.idempotencyKey === id) ?? null)
-          }
-        />
+            <Timeline
+              events={hoje}
+              onDelete={(id) => {
+                removeLocal(id);
+                setToast("Registro excluído");
+              }}
+              onEdit={(id) =>
+                setEditando(events.find((e) => e.idempotencyKey === id) ?? null)
+              }
+            />
+          </>
+        )}
       </Container>
 
       <BreastTimerDialog
@@ -208,6 +245,16 @@ export function HomeScreen({ onLogout }: { onLogout: () => void }) {
           });
           setEditando(null);
           setToast("Horário atualizado");
+        }}
+      />
+
+      <AddBabyDialog
+        open={addBaby || semBebe}
+        obrigatorio={semBebe}
+        onClose={() => setAddBaby(false)}
+        onDone={() => {
+          setAddBaby(false);
+          setToast("Bebê adicionado");
         }}
       />
 
