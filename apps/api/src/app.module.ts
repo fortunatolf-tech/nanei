@@ -11,6 +11,11 @@ import { BabiesService } from "./babies/babies.service";
 import { BabiesController } from "./babies/babies.controller";
 import { LegalService } from "./legal/legal.service";
 import { LegalController } from "./legal/legal.controller";
+import { FamiliesService } from "./families/families.service";
+import {
+  FamiliesController,
+  InvitesController,
+} from "./families/families.controller";
 
 /**
  * Módulo raiz. Os módulos de domínio migram para /packages conforme as
@@ -31,6 +36,8 @@ import { LegalController } from "./legal/legal.controller";
     AuthController,
     BabiesController,
     LegalController,
+    FamiliesController,
+    InvitesController,
   ],
   providers: [
     PrismaService,
@@ -39,6 +46,7 @@ import { LegalController } from "./legal/legal.controller";
     JwtGuard,
     BabiesService,
     LegalService,
+    FamiliesService,
   ],
 })
 export class AppModule {}
