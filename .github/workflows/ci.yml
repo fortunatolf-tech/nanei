@@ -31,5 +31,20 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # §8.3 — bloqueia em vulnerabilidade alta/crítica, mas tolera quedas do
+      # registro npm (503/timeout): indisponibilidade de infraestrutura não é
+      # falha de segurança e não deve travar o merge.
       - name: Auditoria de dependências (§8.3 — sem vulnerabilidade alta/crítica)
-        run: pnpm audit --audit-level high
+        run: |
+          set +e
+          saida=$(pnpm audit --audit-level high 2>&1)
+          codigo=$?
+          echo "$saida"
+          if [ "$codigo" -eq 0 ]; then
+            exit 0
+          fi
+          if echo "$saida" | grep -qiE "ERR_PNPM_AUDIT_BAD_RESPONSE|503|Service Unavailable|ETIMEDOUT|ENOTFOUND|ECONNRESET|aborted due to timeout"; then
+            echo "::warning::Registro npm indisponível — auditoria adiada (sem bloquear o merge)."
+            exit 0
+          fi
+          exit "$codigo"
