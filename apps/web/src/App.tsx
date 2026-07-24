@@ -3,7 +3,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { isLoggedIn } from "./api/client";
 import { AuthScreen } from "./screens/AuthScreen";
-import { HomeScreen } from "./screens/HomeScreen";
+import { MainShell } from "./screens/MainShell";
 
 /**
  * Tema MD3: modo escuro por padrão (uso noturno — §1.3), base 360px,
@@ -21,7 +21,7 @@ export function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {logado ? (
-        <HomeScreen onLogout={() => setLogado(false)} />
+        <MainShell onLogout={() => setLogado(false)} />
       ) : (
         <AuthScreen onDone={() => setLogado(true)} />
       )}

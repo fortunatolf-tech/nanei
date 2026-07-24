@@ -45,8 +45,10 @@ Status real da execução (atualizado a cada entrega). Log detalhado no
 | RF-TRK-02/05/06 | Mamadeira, fralda, sono | ✅ |
 | RF-TRK-14 | Registro retroativo + edição de data/hora | ✅ |
 | RF-TRK-15 | Linha do tempo diária | ✅ |
-| RF-ANA-01 | Resumo automático do dia | ✅ |
+| RF-ANA-01 | Resumo automático do dia (+ semanal na aba Análises) | ✅ |
+| RF-ANA-02 | Gráficos de tendência (sono, mamadas, fraldas) | ✅ (antecipado do S2) |
 | RNF-03 | Funcionamento offline (fila + sync) | ✅ (base; refino no S4) |
+| RNF-13 | Testes automatizados + CI | 🚧 (Vitest configurado; cobertura crescendo) |
 
 **Próximo no S1/S2:** termos/política versionados (RF-ACC-08/09), convites de
-cuidadores (RF-FAM-02), gráficos de tendência (RF-ANA-02).
+cuidadores (RF-FAM-02), curvas de percentil OMS/CDC (RF-ANA-03).
